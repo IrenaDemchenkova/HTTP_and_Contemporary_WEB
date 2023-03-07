@@ -1,4 +1,4 @@
-# Домашнее задание по курсу Web, Spring & Spring MVC
-## HTTP и современный Web
+# Р”РѕРјР°С€РЅРµРµ Р·Р°РґР°РЅРёРµ РїРѕ РєСѓСЂСЃСѓ Web, Spring & Spring MVC
+## HTTP and contemporary Web
 ***
 *Refactoring & MultiThreading* 
