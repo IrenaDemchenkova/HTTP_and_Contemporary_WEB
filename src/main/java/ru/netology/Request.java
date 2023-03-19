@@ -89,11 +89,8 @@ public class Request {
             body = new String(Arrays.copyOfRange(buffer, headersEnd + headersDelimiter.length, read));
         }
 
-        System.out.println("after headers");
-
         HashMap<String, String> postParams = null;
         String contentType = headers.get("Content-Type");
-        System.out.println(contentType);
         if (contentType != null && contentType.equals("application/x-www-form-urlencoded")) {
             String[] params = body.split("&");
             postParams = new HashMap<>();
