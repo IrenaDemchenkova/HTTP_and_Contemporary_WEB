@@ -73,11 +73,7 @@ public class Request {
         // parsing body
         String body = null;
         if (!method.equals("GET")) {
-            String contentLengthHeader = headers.get("Content-Length");
-            if (contentLengthHeader != null) {
-                int contentLength = Integer.parseInt(contentLengthHeader);
-                body = new String(Arrays.copyOfRange(buffer, headersEnd + headersDelimiter.length + 1, contentLength));
-            }
+            body = new String(Arrays.copyOfRange(buffer, headersEnd + headersDelimiter.length, read));
         }
 
         return new Request(method, path.split("\\?")[0], getQueryParams(path), headers, body);
