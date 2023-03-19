@@ -19,13 +19,27 @@ public class Request {
     private final HashMap<String, String> headers;
     private final String body;
     public Map<String, String> paramsQuery;
+    public HashMap<String, String> postParams;
 
-    public Request(String method, String path, Map<String, String> paramsQuery, HashMap<String, String> headers, String body) {
+    public Request(String method, String path, Map<String, String> paramsQuery, HashMap<String, String> headers, String body, HashMap<String, String> postParams) {
         this.method = method;
         this.path = path;
         this.paramsQuery = paramsQuery;
         this.headers = headers;
         this.body = body;
+        this.postParams = postParams;
+    }
+
+    public HashMap<String, String> getPostParams() {
+        return this.postParams;
+    }
+
+    public String getPostParam(String name) {
+        if (this.postParams == null) {
+            return null;
+        }
+
+        return this.postParams.get(name);
     }
 
     static Request getRequest(InputStream in) throws IOException {
@@ -44,7 +58,6 @@ public class Request {
         }
 
         // Method and Path
-
         final String method = requestLine[0];
         if (!AllowedMethod.isValidMethod(method)) {
             return null;
@@ -73,14 +86,25 @@ public class Request {
         // parsing body
         String body = null;
         if (!method.equals("GET")) {
-            String contentLengthHeader = headers.get("Content-Length");
-            if (contentLengthHeader != null) {
-                int contentLength = Integer.parseInt(contentLengthHeader);
-                body = new String(Arrays.copyOfRange(buffer, headersEnd + headersDelimiter.length + 1, contentLength));
+            body = new String(Arrays.copyOfRange(buffer, headersEnd + headersDelimiter.length, read));
+        }
+
+        System.out.println("after headers");
+
+        HashMap<String, String> postParams = null;
+        String contentType = headers.get("Content-Type");
+        System.out.println(contentType);
+        if (contentType != null && contentType.equals("application/x-www-form-urlencoded")) {
+            String[] params = body.split("&");
+            postParams = new HashMap<>();
+
+            for (String param : params) {
+                String[] keyValueParam = param.split("=");
+                postParams.put(keyValueParam[0], keyValueParam[1]);
             }
         }
 
-        return new Request(method, path.split("\\?")[0], getQueryParams(path), headers, body);
+        return new Request(method, path.split("\\?")[0], getQueryParams(path), headers, body, postParams);
     }
 
     private static int indexOf(byte[] array, byte[] target, int start, int max) {

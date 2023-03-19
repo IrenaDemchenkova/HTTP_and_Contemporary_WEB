@@ -49,12 +49,14 @@ public class Server {
     public void handleConnection(Socket socket) throws IOException {
         try (final BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream())) {
             Request request = Request.getRequest(socket.getInputStream());
+            System.out.println(request);
             if (request == null) {
                 Response.badRequest(out);
                 return;
             }
 
             final Handler handler = handlerMap.get(request.getMethod() + " " + request.getPath());
+            System.out.println(handler);
             if (handler == null) {
                 if (!VALID_PATHS.contains(request.getPath())) {
                     Response.notFoundResponse(out);
