@@ -21,6 +21,11 @@ public class Main {
                     "Body: " + request.getBody();
             write(text, responseStream);
         });
+        server.addHandler(AllowedMethod.POST, "/form", (request, responseStream) -> {
+            final String text = "<h1>Params: " + request.getPostParams() + "</h1>\n" +
+                    "<h1>\"Hello\" param: " + request.getPostParam("hello") + "</h1>";
+            write(text, responseStream);
+        });
         server.start();
     }
 
