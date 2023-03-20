@@ -18,12 +18,12 @@ public class Request {
     private final String path;
     private final HashMap<String, String> headers;
     private final String body;
-    public Map<String, String> paramsQuery;
+    public Map<String, String> queryParams;
 
-    public Request(String method, String path, Map<String, String> paramsQuery, HashMap<String, String> headers, String body) {
+    public Request(String method, String path, Map<String, String> queryParams, HashMap<String, String> headers, String body) {
         this.method = method;
         this.path = path;
-        this.paramsQuery = paramsQuery;
+        this.queryParams = queryParams;
         this.headers = headers;
         this.body = body;
     }
@@ -70,13 +70,21 @@ public class Request {
             headers.put(headerKeyValue[0], headerKeyValue[1]);
         }
 
+        // parsing query params
+        HashMap<String, String> queryParams = new HashMap<>();
+        if (path.contains("?")) {
+            String query = getQueryFromURL(path);
+            URLEncodedUtils.parse(query, StandardCharsets.UTF_8)
+                    .forEach(param -> queryParams.put(param.getName(), param.getValue()));
+        }
+
         // parsing body
         String body = null;
         if (!method.equals("GET")) {
             body = new String(Arrays.copyOfRange(buffer, headersEnd + headersDelimiter.length, read));
         }
 
-        return new Request(method, path.split("\\?")[0], getQueryParams(path), headers, body);
+        return new Request(method, path.split("\\?")[0], queryParams, headers, body);
     }
 
     private static int indexOf(byte[] array, byte[] target, int start, int max) {
@@ -99,20 +107,12 @@ public class Request {
         return null;
     }
 
-    public static Map<String, String> getQueryParams(String url) {
-        HashMap<String, String> queryParams = new HashMap<>();
-
-        if (url.contains("?")) {
-            String query = getQueryFromURL(url);
-            URLEncodedUtils.parse(query, StandardCharsets.UTF_8)
-                    .forEach(param -> queryParams.put(param.getName(), param.getValue()));
-        }
-
-        return queryParams;
+    public Map<String, String> getQueryParams() {
+        return this.queryParams;
     }
 
     public String getQueryParam(String paramName) {
-        return this.paramsQuery.get(paramName);
+        return this.queryParams.get(paramName);
     }
 
     public String getMethod() {
@@ -132,7 +132,7 @@ public class Request {
     }
 
     public Map<String, String> getQuery() {
-        return this.paramsQuery;
+        return this.queryParams;
     }
 
     @Override
